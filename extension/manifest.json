@@ -1,0 +1,34 @@
+{
+  "manifest_version": 2,
+  "name": "niri Link Router",
+  "version": "0.2.0",
+  "description": "Open external links in Firefox on the current or configured fallback niri workspace.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "niri-firefox-router@danieln.de",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "incognito": "not_allowed",
+  "permissions": [
+    "storage",
+    "nativeMessaging"
+  ],
+  "background": {
+    "scripts": [
+      "core.js",
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_security_policy": "default-src 'self'; script-src 'self'; object-src 'none'; connect-src 'none'"
+}

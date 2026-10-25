@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-25",
+  "platform": "Linux x86_64, niri 26.04, Firefox Release 158.0",
+  "version": "0.2.0",
+  "profiles": 2,
+  "profile_local_window_ids": [
+    [
+      1,
+      2
+    ],
+    [
+      1
+    ]
+  ],
+  "sequential_cases": [
+    {
+      "name": "local-first-profile-window-one",
+      "passed": true,
+      "http_deliveries": 1,
+      "selected_and_focused_destination": true,
+      "extra_firefox_windows": 0
+    },
+    {
+      "name": "workspace-fallback-window-two",
+      "passed": true,
+      "http_deliveries": 1,
+      "selected_and_focused_destination": true,
+      "extra_firefox_windows": 0
+    },
+    {
+      "name": "second-profile-window-one",
+      "passed": true,
+      "http_deliveries": 1,
+      "selected_and_focused_destination": true,
+      "extra_firefox_windows": 0
+    },
+    {
+      "name": "fallback-after-other-profile",
+      "passed": true,
+      "http_deliveries": 1,
+      "selected_and_focused_destination": true,
+      "extra_firefox_windows": 0
+    },
+    {
+      "name": "niri-spawn-fallback",
+      "passed": true,
+      "http_deliveries": 1,
+      "selected_and_focused_destination": true,
+      "extra_firefox_windows": 0
+    },
+    {
+      "name": "isolated-desktop-handler",
+      "passed": true,
+      "http_deliveries": 1,
+      "selected_and_focused_destination": true,
+      "extra_firefox_windows": 0
+    }
+  ],
+  "concurrent": {
+    "requests": 8,
+    "acknowledged": 8,
+    "http_deliveries": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "traced_tabs": [
+    {
+      "profile": "browser",
+      "new_tabs": 5,
+      "tab_open_events": 5,
+      "interstitial_navigations": 0
+    },
+    {
+      "profile": "browser-two",
+      "new_tabs": 1,
+      "tab_open_events": 1,
+      "interstitial_navigations": 0
+    }
+  ],
+  "native_host_rss_kib_snapshot": [
+    4988,
+    4544
+  ],
+  "native_hosts_after_browsers_closed": 0,
+  "native_sockets_after_browsers_closed": 0,
+  "excluded_trial": "The initial compositor-spawn test omitted the isolated runtime environment. It used ordinary Firefox fallback; the corrected harness passed.",
+  "not_tested": [
+    "signed installation",
+    "multiple active outputs",
+    "live extension reload and manual reconnect",
+    "native ARM64"
+  ]
+}

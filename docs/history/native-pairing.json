@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-25",
+  "firefox": "158.0",
+  "native_pair_acknowledged": true,
+  "profile_label_applied": true,
+  "master_key_reused": true,
+  "profile_scoped_key": true,
+  "manual_fallback_matches": true,
+  "subsequent_go_signed_delivery": {
+    "passed": true,
+    "http_requests": 1,
+    "selected_title_windows": [
+      45
+    ],
+    "focused_windows": [
+      45
+    ]
+  }
+}

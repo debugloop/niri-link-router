@@ -1,0 +1,77 @@
+name: Collect approved Firefox release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag to collect, for example v0.1.0
+        type: string
+        required: true
+  schedule:
+    - cron: "17 * * * *"
+permissions:
+  contents: read
+concurrency:
+  group: collect-firefox-addon
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Choose a version tag
+        id: release
+        env:
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          tag="$REQUESTED_TAG"
+          if [ -z "$tag" ]; then tag=$(git tag --list 'v*' --sort=-v:refname | head -n 1); fi
+          if [ -z "$tag" ]; then exit 0; fi
+          [[ "$tag" =~ ^v[0-9][0-9A-Za-z.+_-]{0,63}$ ]]
+          git checkout --detach "refs/tags/$tag"
+          version=$(python3 -c 'import json; print(json.load(open("extension/manifest.json"))["version"])')
+          test "${tag#v}" = "$version"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31
+        if: steps.release.outputs.tag != ''
+      - name: Collect the public Mozilla artifact
+        if: steps.release.outputs.tag != ''
+        id: download
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set +e
+          python3 tools/fetch_signed_addon.py --version "$VERSION" --output signed-artifacts
+          status=$?
+          set -e
+          if [ "$status" = 75 ]; then
+            echo '::notice::AMO has not published this version yet. A later run will retry.'
+            exit 0
+          fi
+          if [ "$status" != 0 ]; then exit "$status"; fi
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Publish the unchanged signed XPI and Nix metadata
+        if: steps.download.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+          fi
+          existing=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
+          for file in signed-artifacts/*.xpi signed-artifacts/SHA256SUMS signed-artifacts/addon.json; do
+            name=$(basename "$file")
+            if printf '%s\n' "$existing" | grep -Fxq "$name"; then
+              previous=$(mktemp -d)
+              gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir "$previous"
+              cmp "$file" "$previous/$name"
+              rm -rf "$previous"
+            else
+              gh release upload "$TAG" "$file" --repo "$GITHUB_REPOSITORY"
+            fi
+          done

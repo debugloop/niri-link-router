@@ -1,0 +1,8 @@
+:root { color-scheme: light dark; font: 1rem/1.5 system-ui, sans-serif; }
+body { max-width: 46rem; margin: 2rem auto; padding: 0 1rem; color: CanvasText; background: Canvas; }
+h1 { font-size: 1.5rem; } h2 { margin-top: 2rem; font-size: 1.15rem; }
+label { display: block; margin: 0.75rem 0; }
+input { box-sizing: border-box; display: block; width: 100%; padding: 0.5rem; font: inherit; }
+button { padding: 0.4rem 0.8rem; margin: 0.25rem 0.5rem 0.25rem 0; font: inherit; cursor: pointer; }
+summary { cursor: pointer; } pre { overflow: auto; font-size: 0.85rem; }
+[role="status"] { min-height: 1.5em; } code { overflow-wrap: anywhere; }

@@ -1,0 +1,15 @@
+/result
+/dist/
+*.xpi
+__pycache__/
+/.cache/
+/.pre-commit-config.yaml
+/node_modules/
+/web-ext-artifacts/
+
+/signed-artifacts/
+/.env
+/key
+
+/result-*
+/test-state/

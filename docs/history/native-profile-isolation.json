@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-25",
+  "firefox": "158.0",
+  "profiles_share_master_key": true,
+  "overlapping_firefox_window_ids": true,
+  "wrong_profile_rejected": true,
+  "wrong_profile_handler_cleaned": true,
+  "intended_profile_delivered_once": true,
+  "same_profile_replay_rejected": true
+}

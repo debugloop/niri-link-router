@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="settings.css">
+<title>niri Link Router settings</title>
+<h1>niri Link Router</h1>
+<h2>Native bridge</h2>
+<p id="bridge-state" role="status"></p>
+<p>Firefox starts one native host for this profile. No pairing key or request tab is needed.</p>
+<p>If disconnected, check that the native host is installed and registered, then reconnect.</p>
+<button id="reconnect">Reconnect native bridge</button>
+<h2>Window title label</h2>
+<form id="title-form">
+  <label>Label for this profile <input id="title-label" maxlength="64" placeholder="For example: private" autocomplete="off" spellcheck="false"></label>
+  <p>This label applies to every normal window in this profile. A label of <code>private</code> gives a prefix such as <code>[nfr:123] private </code>.</p>
+  <p>Your niri screenshare rule can match the label. The router still uses its own window ID.</p>
+  <button>Save label</button>
+</form>
+<p id="title-status" role="status"></p>
+<h2>Recent delivery receipts</h2>
+<p>Receipts contain no URLs. An opened status means Firefox acknowledged tab creation, not a completed network load.</p>
+<button id="refresh">Refresh status and receipts</button>
+<pre id="receipts"></pre>
+<script src="core.js"></script>
+<script src="options.js"></script>
+</html>
