@@ -29,6 +29,8 @@ A changed wrapper can require a browser restart.
 Remove any older personal installation before relying on the package desktop entry.
 A file under `~/.local/share/applications` shadows the package entry even if both have the same desktop ID.
 Upgrade the native host and extension together.
+For a locked local flake input, refresh it with `nix flake update niri-firefox-router`
+from the consuming configuration before rebuilding; editing the checkout does not refresh its locked snapshot.
 
 ## Runtime configuration
 
@@ -45,16 +47,19 @@ The command never automatically retries an uncertain submission.
 
 ## Signed extension
 
-No signed release exists yet.
-After publication, use the exact signed XPI and its flat-file hash:
+For manual installation, install [niri Link Router from AMO](https://addons.mozilla.org/en-US/firefox/addon/niri-link-router/)
+in each participating profile. Leave `extensionPackage` unset; Firefox supplies add-on updates.
+
+For optional Nix provisioning, use the exact signed XPI and its flat-file hash.
+The approved 0.2.0 artifact is:
 
 ```nix
 { pkgs, inputs, ... }: {
   programs.niri-firefox-router.extensionPackage =
     inputs.niri-firefox-router.lib.mkSignedExtension {
       inherit pkgs;
-      url = "https://example.org/releases/0.2.0/router-signed.xpi";
-      hash = "sha256-REPLACE_WITH_THE_SIGNED_FILE_HASH";
+      url = "https://addons.mozilla.org/firefox/downloads/file/5252374/niri_link_router-0.2.0.xpi";
+      hash = "sha256-IWxda2ETivGObqJ3piJx+CqEA7+x9BZduboKDxmgvDg=";
     };
 }
 ```

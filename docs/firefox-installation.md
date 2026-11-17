@@ -40,7 +40,8 @@ Mozilla can request changes after publication, and review times vary.
 
 The source is plain JavaScript without a build step.
 The manifest requires Firefox 142 or later and declares no remote data collection.
-No signed artifact, public listing, or AMO credentials exist in this checkout.
+Version 0.2.0 is approved and available from [Firefox Add-ons][listing].
+AMO credentials are not stored in this checkout.
 
 ## Automation and repository hosting
 
@@ -95,17 +96,37 @@ nix shell --inputs-from . nixpkgs#web-ext --command \
   web-ext sign --source-dir extension --channel listed --approval-timeout 0
 
 # After AMO publishes the requested version:
-python3 tools/fetch_signed_addon.py --version 0.2.0 --output signed-artifacts
+python3 tools/fetch_signed_addon.py --version 0.2.1 --output signed-artifacts
 ```
 
 The collector exits with status 75 while the version is not public.
 Its optional `--wait SECONDS` is bounded to 30 minutes.
 This polling is release tooling, not part of the installed router.
-The workflows were linted but not executed against AMO because no credentials or listing exist yet.
+The artifact collector has successfully downloaded and verified the public 0.2.0 XPI locally.
+The submission workflow has not yet been verified with AMO credentials.
+
+## Publish a new version
+
+Version 0.2.0 was submitted manually. Version 0.2.1 starts the tagged GitHub release process.
+It contains documentation updates and no extension or native-host behavior changes.
+Do not tag 0.2.0 to trigger another submission of the already-approved version.
+
+For each release:
+
+1. Increase `extension/manifest.json`'s version and update `CHANGELOG.md`.
+2. Run `nix flake check --print-build-logs`.
+3. Commit and push the release source, then push its matching `v<version>` tag.
+4. Check the **Submit Firefox extension** workflow. It submits the listed version to Mozilla.
+5. After Mozilla publishes it, the hourly collector creates the GitHub Release and its assets.
+   To collect sooner, run **Collect approved Firefox release** manually with the version tag.
+
+The `mozilla-signing` environment must contain `AMO_API_KEY` and `AMO_API_SECRET`
+and allow version tags before the submission job can run.
+If submission fails or times out, check AMO for that version before retrying.
 
 ## Install and connect
 
-Regular users install the listed add-on from AMO once it exists.
+Install [niri Link Router from Firefox Add-ons][listing] in each participating profile.
 Firefox then supplies normal add-on updates.
 For manual file installation, use **Install Add-on From File** in `about:addons` with Mozilla's signed XPI.
 
@@ -144,3 +165,5 @@ The automatic release workflows here deliberately use listed distribution for bo
 [signing]: https://extensionworkshop.com/documentation/publish/signing-and-distribution-overview/
 [web-ext]: https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-sign
 [policies]: https://mozilla.github.io/policy-templates/#extensionsettings
+
+[listing]: https://addons.mozilla.org/en-US/firefox/addon/niri-link-router/

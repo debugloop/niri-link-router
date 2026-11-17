@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.2.0 — unreleased
+## 0.2.1
+
+- Document permanent installation from Firefox Add-ons and optional Nix provisioning.
+- Publish through the GitHub Actions submission and signed-artifact collection workflows.
+- Keep extension and native-host behavior unchanged from 0.2.0.
+
+## 0.2.0
 
 - Use niri Link Router as the public add-on name.
 - Replace protocol-handler navigation with a Firefox-owned native bridge.
@@ -11,4 +17,4 @@
 - Keep current-workspace routing, configurable fallback workspaces, and ordinary Firefox fallback.
 - Preserve profile-wide labels, multiple profiles, and URL-free receipts.
 
-No Mozilla-signed release exists yet.
+The Mozilla-signed add-on is available on [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/niri-link-router/).

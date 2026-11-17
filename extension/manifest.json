@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "niri Link Router",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Open external links in Firefox on the current or configured fallback niri workspace.",
   "browser_specific_settings": {
     "gecko": {

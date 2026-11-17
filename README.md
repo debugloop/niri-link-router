@@ -25,10 +25,9 @@ The native host is a separate Go process, owned by Firefox rather than a systemd
 
 ## Installation
 
-**No AMO listing or signed release exists yet.**
-Until publication, use the temporary extension installation below.
-Stock Firefox Release requires Mozilla signing for permanent installation, including Nix-provisioned copies.
-Never disable signature verification to avoid signing.
+Install [niri Link Router from Firefox Add-ons][amo] in each participating Firefox profile.
+Install the companion application with one of the methods below.
+The add-on requires the companion application to route links.
 
 ### Method 1: Nix Flake (Recommended)
 
@@ -74,7 +73,9 @@ The NixOS module uses Firefox's native-host package interface.
 Restart Firefox if a changed wrapper needs to expose the new host.
 
 Without `extensionPackage`, install the extension separately.
-Once Mozilla publishes a signed release, save its `addon.json` as `firefox-addon.json` beside your configuration:
+For optional Nix provisioning, collect the signed artifact as described in
+[Firefox installation](docs/firefox-installation.md), then save its `addon.json` as
+`firefox-addon.json` beside your configuration:
 
 ```nix
 { pkgs, inputs, ... }: let
@@ -118,7 +119,10 @@ python3 tools/install_user.py uninstall
 
 ### Firefox Setup
 
-For development, open `about:debugging#/runtime/this-firefox` and load `extension/manifest.json` as a temporary add-on.
+Install [niri Link Router from Firefox Add-ons][amo] in each participating profile.
+Firefox keeps this installation across restarts and supplies add-on updates.
+
+For development only, open `about:debugging#/runtime/this-firefox` and load `extension/manifest.json` as a temporary add-on.
 Repeat this in each participating profile.
 Firefox removes temporary add-ons on exit, so load the extension again after a restart.
 
@@ -258,3 +262,5 @@ Mozilla review is not bypassed by CI. See [Firefox installation](docs/firefox-in
 See [CONTRIBUTING.md](CONTRIBUTING.md), [native validation](docs/native-validation.md), and [security notes](docs/security.md).
 
 [niri]: https://github.com/niri-wm/niri
+
+[amo]: https://addons.mozilla.org/en-US/firefox/addon/niri-link-router/
