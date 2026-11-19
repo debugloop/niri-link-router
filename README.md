@@ -2,7 +2,7 @@
 
 Open external links in Firefox on the launching window’s [niri][niri] workspace.
 If the source workspace is unknown or has no Firefox window, use the configured fallback workspace, `web` by default.
-Routed links select the new tab and preserve your current focus. Use `open --bg` to also mark the destination urgent.
+Routed links select the new tab and focus its Firefox window by default. Use `open --bg` to mark the destination urgent and keep your current focus.
 If routing is unavailable, the command opens the original URL through Firefox normally.
 
 The Go command talks to a Firefox-owned native host through a private Unix socket.

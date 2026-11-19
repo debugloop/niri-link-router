@@ -146,7 +146,7 @@ class Smoke(unittest.TestCase):
                 self.assertEqual(len(deliveries), 1)
                 self.assertEqual(deliveries[0]["url"], url)
                 self.assertEqual(deliveries[0]["window_id"], 3)
-                self.assertFalse(any("Action" in request for request in ipc_requests))
+                self.assertEqual(ipc_requests[-1], {"Action": {"FocusWindow": {"id": 900}}})
                 self.assertTrue(deliveries[0]["active"])
                 checked = subprocess.run(["node", "tests/verify-native.cjs"], cwd=ROOT, input=json.dumps(deliveries[0]), capture_output=True, text=True, check=True)
                 self.assertEqual(json.loads(checked.stdout)["url"], url)
@@ -156,6 +156,7 @@ class Smoke(unittest.TestCase):
                 self.assertIn("acknowledged tab creation", background.stdout)
                 self.assertTrue(deliveries[1]["active"])
                 self.assertEqual([req for req in ipc_requests if "Action" in req], [
+                    {"Action": {"FocusWindow": {"id": 900}}},
                     {"Action": {"SetWindowUrgent": {"id": 900}}},
                 ])
                 outcomes.put("uncertain")

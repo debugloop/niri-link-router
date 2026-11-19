@@ -109,7 +109,7 @@ def run_case(router, pages, name, source, target, recent, launcher=None, fallbac
               "selected_title_windows": matches, "focused_windows": focused,
               "new_firefox_windows": [w["id"] for w in windows if w["app_id"] == "firefox" and w["id"] not in {w["id"] for w in before}],
               "invoked_at": started, "observer_error": observer.failure, "events": observer.events}
-    result["passed"] = completed.returncode == 0 and result["http_requests"] == 1 and matches == [target] and focused == [source] and not result["new_firefox_windows"] and observer.failure is None
+    result["passed"] = completed.returncode == 0 and result["http_requests"] == 1 and matches == [target] and focused == [target] and not result["new_firefox_windows"] and observer.failure is None
     return result
 
 

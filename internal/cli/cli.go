@@ -168,10 +168,12 @@ func (r Runner) Run(args []string) error {
 		}
 		return ordinary(err)
 	}
+	notify := compositor.Focus
 	if background {
-		if err := compositor.SetUrgent(decision.NiriID); err != nil && r.Err != nil {
-			_, _ = fmt.Fprintf(r.Err, "Tab opened, but Niri could not mark the destination urgent: %v\n", err)
-		}
+		notify = compositor.SetUrgent
+	}
+	if err := notify(decision.NiriID); err != nil && r.Err != nil {
+		_, _ = fmt.Fprintf(r.Err, "Tab opened, but Niri could not update the destination window: %v\n", err)
 	}
 	_, err = fmt.Fprintln(r.Out, "Opened in Firefox. The extension acknowledged tab creation.")
 	return err

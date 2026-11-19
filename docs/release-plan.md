@@ -31,5 +31,5 @@ Do not install the unsigned source archive permanently in Firefox Release.
 4. Document any browser packaging whose profile locks or process IDs differ from standard Linux Firefox.
 5. Verify native-host registration on supported Firefox packages.
 
-Test background delivery with window urgency while preserving focus.
+Test both focus-following delivery and background delivery with window urgency.
 Use the current native-bridge record for transport evidence. Historical protocol tests do not validate the replacement.
