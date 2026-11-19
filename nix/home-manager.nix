@@ -6,11 +6,14 @@
 }: let
   cfg = config.programs.niri-firefox-router;
   manifest = builtins.fromJSON (builtins.readFile ../extension/manifest.json);
+  bgOpen = pkgs.writeShellScriptBin "bg-open" ''
+    exec ${lib.getExe' cfg.package "niri-firefox-router"} open --bg "$@"
+  '';
 in {
   options.programs.niri-firefox-router = import ./options.nix {inherit lib pkgs;};
   config = lib.mkIf cfg.enable (lib.mkMerge [
     {
-      home.packages = [cfg.package];
+      home.packages = [cfg.package bgOpen];
       home.file.".mozilla/native-messaging-hosts/niri_firefox_router.json".source = "${cfg.package}/lib/mozilla/native-messaging-hosts/niri_firefox_router.json";
       xdg.configFile."mozilla/native-messaging-hosts/niri_firefox_router.json".source = "${cfg.package}/lib/mozilla/native-messaging-hosts/niri_firefox_router.json";
       xdg.configFile."niri-firefox-router/config.json".text = builtins.toJSON {

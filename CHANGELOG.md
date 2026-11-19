@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3
+
+- Follow Firefox focus after the add-on confirms an ordinary link open, including through `xdg-open`.
+- Use `open --bg` to select the new tab and mark its window urgent in Niri while preserving focus.
+- Install the `bg-open URL` shortcut through Home Manager.
+
 ## 0.2.2
 
 - Route external links to Firefox on the launching window’s workspace when the source can be identified.

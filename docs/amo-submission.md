@@ -1,7 +1,7 @@
 # AMO submission worksheet
 
 Use this worksheet for the first listed submission to addons.mozilla.org (AMO).
-The text below describes version 0.2.2.
+The text below describes version 0.2.3.
 The permanent extension ID is `niri-firefox-router@danieln.de`.
 
 ## Owner decisions before submission

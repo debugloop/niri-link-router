@@ -34,6 +34,9 @@ from the consuming configuration before rebuilding; editing the checkout does no
 
 ## Runtime configuration
 
+Home Manager installs `bg-open URL` for opening a link without switching focus.
+It forwards to `niri-firefox-router open --bg`.
+
 `fallbackWorkspace` defaults to `"web"` and accepts a nonempty workspace name.
 Home Manager writes `niri-firefox-router/config.json` under `xdg.configHome`.
 The NixOS module writes `/etc/niri-firefox-router/config.json`.

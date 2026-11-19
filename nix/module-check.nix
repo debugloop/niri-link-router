@@ -22,7 +22,11 @@
     default = [];
   };
   addonId = (builtins.fromJSON (builtins.readFile ../extension/manifest.json)).browser_specific_settings.gecko.id;
-  fixture = pkgs.runCommand "router-module-fixture" {passthru = {inherit addonId;};} "mkdir -p $out";
+  fixture =
+    pkgs.writeShellScriptBin "niri-firefox-router" ''
+      printf '%s\n' "$@"
+    ''
+    // {inherit addonId;};
   hm = lib.evalModules {
     specialArgs = {inherit pkgs;};
     modules = [
@@ -96,7 +100,7 @@ in
   assert hm.config.programs.firefox.profiles.existing.id == 0;
   assert (builtins.head hm.config.programs.firefox.globalExtensions).package == fixture;
   assert (builtins.head hm.config.programs.firefox.globalExtensions).settings.updates_disabled;
-  assert hm.config.home.packages == [fixture];
+  assert map lib.getName hm.config.home.packages == ["niri-firefox-router" "bg-open"];
   assert hm.config.home.file.".mozilla/native-messaging-hosts/niri_firefox_router.json".source == "${fixture}/lib/mozilla/native-messaging-hosts/niri_firefox_router.json";
   assert hm.config.xdg.configFile."mozilla/native-messaging-hosts/niri_firefox_router.json".source == "${fixture}/lib/mozilla/native-messaging-hosts/niri_firefox_router.json";
   assert (builtins.fromJSON hm.config.xdg.configFile."niri-firefox-router/config.json".text).fallback_workspace == "browser";
@@ -110,4 +114,10 @@ in
   assert os.config.programs.firefox.policies.ExtensionSettings.${addonId}.installation_mode == "force_installed";
   assert os.config.programs.firefox.policies.ExtensionSettings.${addonId}.updates_disabled;
   assert builtins.all (a: a.assertion) os.config.assertions;
-    pkgs.runCommand "router-module-check" {} "touch $out"
+    pkgs.runCommand "router-module-check" {} ''
+      url='https://example.org/a+b?q=%25&mode=bg#fragment'
+      expected=$(printf '%s\n' open --bg "$url")
+      actual=$(${lib.getExe' (builtins.elemAt hm.config.home.packages 1) "bg-open"} "$url")
+      test "$actual" = "$expected"
+      touch "$out"
+    ''
