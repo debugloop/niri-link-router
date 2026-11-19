@@ -108,13 +108,21 @@ func (c Client) Snapshot() ([]routing.Workspace, []routing.Window, error) {
 	return nil, nil, errors.New("niri workspace snapshot changed twice. Retry the command")
 }
 func (c Client) Focus(id uint64) error {
+	return c.windowAction("FocusWindow", id)
+}
+
+func (c Client) SetUrgent(id uint64) error {
+	return c.windowAction("SetWindowUrgent", id)
+}
+
+func (c Client) windowAction(action string, id uint64) error {
 	var response string
-	err := c.Request(map[string]any{"Action": map[string]any{"FocusWindow": map[string]uint64{"id": id}}}, &response)
+	err := c.Request(map[string]any{"Action": map[string]any{action: map[string]uint64{"id": id}}}, &response)
 	if err != nil {
 		return err
 	}
 	if response != "Handled" {
-		return errors.New("unexpected focus response")
+		return errors.New("unexpected niri action response")
 	}
 	return nil
 }

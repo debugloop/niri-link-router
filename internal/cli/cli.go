@@ -54,7 +54,9 @@ func (r Runner) Run(args []string) error {
 	dry := flags.Bool("dry-run", false, "print window selection only, without a URL or delivery")
 	firefox := flags.String("firefox", "firefox", "Firefox executable for ordinary fallback (one path)")
 	var sourceID *uint64
+	var background bool
 	if command == "open" {
+		flags.BoolVar(&background, "bg", false, "mark the destination urgent without focusing it")
 		flags.Func("source-window-id", "Niri ID of the window that opened the link", func(value string) error {
 			id, err := strconv.ParseUint(value, 10, 64)
 			if err == nil {
@@ -165,6 +167,11 @@ func (r Runner) Run(args []string) error {
 			return err
 		}
 		return ordinary(err)
+	}
+	if background {
+		if err := compositor.SetUrgent(decision.NiriID); err != nil && r.Err != nil {
+			_, _ = fmt.Fprintf(r.Err, "Tab opened, but Niri could not mark the destination urgent: %v\n", err)
+		}
 	}
 	_, err = fmt.Fprintln(r.Out, "Opened in Firefox. The extension acknowledged tab creation.")
 	return err

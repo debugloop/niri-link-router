@@ -133,8 +133,14 @@ class Smoke(unittest.TestCase):
                     opened = subprocess.run(["xdg-open", url], env=desktop_env, check=True,
                                             capture_output=True, text=True, timeout=5)
                     self.assertEqual(json.loads(opened.stdout)["niri_window_id"], 900)
+                foreground_command, foreground_env = command, env
+                if shutil.which("xdg-open"):
+                    desktop = applications / "nfr-test.desktop"
+                    desktop.write_text(desktop.read_text().replace("open --dry-run %u", "open %u"))
+                    foreground_command, foreground_env = ["xdg-open", url], desktop_env
                 outcomes.put("opened")
-                result = subprocess.run(command, env=env, check=True, capture_output=True, text=True, timeout=5)
+                result = subprocess.run(foreground_command, env=foreground_env, check=True,
+                                        capture_output=True, text=True, timeout=5)
                 self.assertIn("acknowledged tab creation", result.stdout)
                 self.assertFalse(record.exists())
                 self.assertEqual(len(deliveries), 1)
@@ -144,19 +150,27 @@ class Smoke(unittest.TestCase):
                 self.assertTrue(deliveries[0]["active"])
                 checked = subprocess.run(["node", "tests/verify-native.cjs"], cwd=ROOT, input=json.dumps(deliveries[0]), capture_output=True, text=True, check=True)
                 self.assertEqual(json.loads(checked.stdout)["url"], url)
+                outcomes.put("opened")
+                background = subprocess.run([*command[:-1], "--bg", url], env=env, check=True,
+                                            capture_output=True, text=True, timeout=5)
+                self.assertIn("acknowledged tab creation", background.stdout)
+                self.assertTrue(deliveries[1]["active"])
+                self.assertEqual([req for req in ipc_requests if "Action" in req], [
+                    {"Action": {"SetWindowUrgent": {"id": 900}}},
+                ])
                 outcomes.put("uncertain")
                 result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=5)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("uncertain", result.stderr)
                 self.assertFalse(record.exists())
-                self.assertEqual(len(deliveries), 2)
+                self.assertEqual(len(deliveries), 3)
                 outcomes.put("rejected")
                 subprocess.run(command, env=env, check=True, capture_output=True, timeout=5)
                 deadline = time.monotonic() + 2
                 while not record.exists() and time.monotonic() < deadline:
                     time.sleep(0.01)
                 self.assertEqual(json.loads(record.read_text()), [url])
-                self.assertEqual(len(deliveries), 3)
+                self.assertEqual(len(deliveries), 4)
             finally:
                 stop.set()
                 for path in [niri_path, native_path]:

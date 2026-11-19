@@ -7,7 +7,7 @@ The user's direct clarifications supersede the original cloud handoff.
 1. For link opens, prefer Firefox on the launching window’s Niri workspace when known. The `focus` command uses the focused workspace.
 2. Otherwise use Firefox on the configured fallback workspace, `web` by default.
 3. If routing is unavailable before submission, pass the original URL to Firefox normally.
-4. For routed delivery, select the new tab and preserve the current window and workspace focus.
+4. For routed delivery, select the new tab and preserve the current focus. In background mode, also mark the destination urgent.
 5. Support arbitrary existing profiles and overlapping profile-local Firefox window IDs.
 6. Never blindly retry after uncertain submission.
 

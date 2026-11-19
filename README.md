@@ -2,7 +2,7 @@
 
 Open external links in Firefox on the launching window’s [niri][niri] workspace.
 If the source workspace is unknown or has no Firefox window, use the configured fallback workspace, `web` by default.
-Routed links select the new tab in its destination Firefox window while preserving your current window and workspace focus.
+Routed links select the new tab and preserve your current focus. Use `open --bg` to also mark the destination urgent.
 If routing is unavailable, the command opens the original URL through Firefox normally.
 
 The Go command talks to a Firefox-owned native host through a private Unix socket.
@@ -134,10 +134,13 @@ There are no keys to copy, pairing commands, or approval pages.
 
 ```sh
 niri-firefox-router open 'https://example.org/'
+niri-firefox-router open --bg 'https://example.org/'
 niri-firefox-router focus
 ```
 
 For `open`, the router matches the launching process or its ancestors to a Niri window. Callers can pass `--source-window-id ID` before the URL when they know the source. If a launcher detaches, or its process owns windows on different workspaces, the router uses the configured fallback workspace.
+`xdg-open` takes the URL and invokes the registered desktop entry. For a background open from a script, call the router directly with `--bg` before the URL. To make every invocation through a desktop entry use background mode, set its command to `niri-firefox-router open --bg %u`.
+
 The `focus` command uses the currently focused workspace first.
 With several eligible windows, it prefers the focused or most recently focused window.
 Profiles remain separate even when their Firefox window IDs overlap.
