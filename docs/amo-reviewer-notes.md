@@ -6,7 +6,7 @@ The sections below form the reviewer note.
 
 ## Purpose and environment
 
-niri Link Router is the Firefox component of niri-firefox-router 0.2.1.
+niri Link Router is the Firefox component of niri-firefox-router 0.2.2.
 It opens externally requested links in a selected Firefox window on Linux with the niri compositor.
 It requires a separate companion application and a registered native-messaging host.
 It does not work as a standalone extension or on Android, Windows, or macOS.

@@ -17,6 +17,7 @@ import (
 	"niri-firefox-router/internal/routing"
 	"os"
 	"os/exec"
+	"strconv"
 	"time"
 )
 
@@ -52,6 +53,16 @@ func (r Runner) Run(args []string) error {
 	flags.String("fallback-workspace", config.DefaultFallbackWorkspace, "fallback workspace name (overrides config)")
 	dry := flags.Bool("dry-run", false, "print window selection only, without a URL or delivery")
 	firefox := flags.String("firefox", "firefox", "Firefox executable for ordinary fallback (one path)")
+	var sourceID *uint64
+	if command == "open" {
+		flags.Func("source-window-id", "Niri ID of the window that opened the link", func(value string) error {
+			id, err := strconv.ParseUint(value, 10, 64)
+			if err == nil {
+				sourceID = &id
+			}
+			return err
+		})
+	}
 	inactive := flags.Bool("inactive", false, "do not select the routed destination tab")
 	timeout := flags.Duration("timeout", 5*time.Second, "niri and native bridge request timeout")
 	if err := flags.Parse(args[1:]); err != nil {
@@ -101,7 +112,15 @@ func (r Runner) Run(args []string) error {
 	if err != nil {
 		return ordinary(err)
 	}
-	decision, err := routing.Select(spaces, windows, fallback)
+	var decision routing.Decision
+	if command == "focus" {
+		decision, err = routing.Select(spaces, windows, fallback)
+	} else {
+		if sourceID == nil {
+			sourceID = sourceWindow(windows)
+		}
+		decision, err = routing.SelectForOpen(spaces, windows, fallback, sourceID)
+	}
 	if err != nil {
 		return ordinary(err)
 	}
@@ -135,9 +154,6 @@ func (r Runner) Run(args []string) error {
 		return ordinary(err)
 	}
 	defer func() { _ = native.Close() }()
-	if err := compositor.Focus(decision.NiriID); err != nil {
-		return ordinary(err)
-	}
 	var nonce [16]byte
 	if _, err := rand.Read(nonce[:]); err != nil {
 		return ordinary(errors.New("cannot generate native request ID"))

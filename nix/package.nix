@@ -38,7 +38,7 @@ in
       EOF_DESKTOP
     '';
     meta = {
-      description = "Open external links in Firefox on the current or configured fallback niri workspace";
+      description = "Open external links in Firefox on the source or configured fallback niri workspace";
       license = pkgs.lib.licenses.mit;
       platforms = pkgs.lib.platforms.linux;
       mainProgram = "niri-firefox-router";

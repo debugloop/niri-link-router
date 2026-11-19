@@ -31,6 +31,5 @@ Do not install the unsigned source archive permanently in Firefox Release.
 4. Document any browser packaging whose profile locks or process IDs differ from standard Linux Firefox.
 5. Verify native-host registration on supported Firefox packages.
 
-The old focus-preservation requirement is not a release criterion.
-The intended action selects the tab and focuses Firefox, including a workspace switch for fallback.
+Routed links select the new tab while preserving the current window and workspace focus.
 Use the current native-bridge record for transport evidence. Historical protocol tests do not validate the replacement.

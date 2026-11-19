@@ -1,8 +1,8 @@
 # niri Link Router
 
-Open external links in Firefox on your current [niri][niri] workspace.
-If that workspace has no Firefox window, use the configured fallback workspace, `web` by default.
-The new tab is selected and Firefox takes focus, including a workspace switch when needed.
+Open external links in Firefox on the launching window’s [niri][niri] workspace.
+If the source workspace is unknown or has no Firefox window, use the configured fallback workspace, `web` by default.
+Routed links select the new tab in its destination Firefox window while preserving your current window and workspace focus.
 If routing is unavailable, the command opens the original URL through Firefox normally.
 
 The Go command talks to a Firefox-owned native host through a private Unix socket.
@@ -137,7 +137,8 @@ niri-firefox-router open 'https://example.org/'
 niri-firefox-router focus
 ```
 
-The command selects Firefox on the current workspace, then the fallback workspace.
+For `open`, the router matches the launching process or its ancestors to a Niri window. Callers can pass `--source-window-id ID` before the URL when they know the source. If a launcher detaches, or its process owns windows on different workspaces, the router uses the configured fallback workspace.
+The `focus` command uses the currently focused workspace first.
 With several eligible windows, it prefers the focused or most recently focused window.
 Profiles remain separate even when their Firefox window IDs overlap.
 A routed success means the extension acknowledged tab creation, not that the network page finished loading.

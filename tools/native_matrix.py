@@ -73,13 +73,15 @@ class Pages:
         self.thread.join(3)
 
 
-def run_case(router, pages, name, source, target, recent, launcher=None, fallback=None):
+def run_case(router, pages, name, source, target, recent, launcher=None, fallback=None, entry="direct"):
     if recent is not None:
         focus(recent)
     focus(source)
     marker = "nfr-" + name + "-" + secrets.token_hex(4)
     url = pages.url(marker)
     options = ["--fallback-workspace", fallback] if fallback else []
+    if entry != "xdg-open":
+        options += ["--source-window-id", str(source)]
     decision = json.loads(subprocess.check_output([str(router), "open", "--dry-run", *options, url], text=True))
     if decision["niri_window_id"] != target:
         raise RuntimeError(f"wrong preflight destination for {name}: {decision}")
@@ -94,7 +96,7 @@ def run_case(router, pages, name, source, target, recent, launcher=None, fallbac
         while time.monotonic() < deadline:
             windows = ipc("Windows")["Windows"]
             matches = [w for w in windows if marker in (w.get("title") or "")]
-            if matches and any(w["id"] == target and w["is_focused"] for w in matches):
+            if any(w["id"] == target for w in matches):
                 break
             time.sleep(0.05)
         time.sleep(0.5)
@@ -107,7 +109,7 @@ def run_case(router, pages, name, source, target, recent, launcher=None, fallbac
               "selected_title_windows": matches, "focused_windows": focused,
               "new_firefox_windows": [w["id"] for w in windows if w["app_id"] == "firefox" and w["id"] not in {w["id"] for w in before}],
               "invoked_at": started, "observer_error": observer.failure, "events": observer.events}
-    result["passed"] = completed.returncode == 0 and result["http_requests"] == 1 and matches == [target] and focused == [target] and not result["new_firefox_windows"] and observer.failure is None
+    result["passed"] = completed.returncode == 0 and result["http_requests"] == 1 and matches == [target] and focused == [source] and not result["new_firefox_windows"] and observer.failure is None
     return result
 
 
@@ -145,7 +147,7 @@ def main():
                 launch = lambda command, url: ["niri", "msg", "action", "spawn", "--", "env", "XDG_RUNTIME_DIR=" + os.environ["XDG_RUNTIME_DIR"], *command]
             elif entry == "xdg-open":
                 launch = lambda command, url: ["xdg-open", url]
-            result = run_case(args.router, pages, case["name"], case["source"], case["target"], case.get("recent"), launch, args.fallback_workspace)
+            result = run_case(args.router, pages, case["name"], case["source"], case["target"], case.get("recent"), launch, args.fallback_workspace, entry)
             results.append(result)
             args.output.write_text(json.dumps(results, indent=2) + "\n")
             print(case["name"], "PASS" if result["passed"] else "FAIL", flush=True)

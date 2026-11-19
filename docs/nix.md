@@ -40,7 +40,7 @@ The NixOS module writes `/etc/niri-firefox-router/config.json`.
 A user file overrides the system file. The `--fallback-workspace NAME` option overrides both.
 The command reads these files on every invocation, so a name change needs no browser restart.
 
-The current workspace always wins when it has an eligible window.
+For `open`, the launching window’s workspace wins when it is known and has an eligible window. The `focus` command checks the focused workspace first.
 If selection or native connection setup fails before submission, `open` invokes Firefox normally with the original URL.
 An explicit rejection before tab creation also permits this fallback.
 The command never automatically retries an uncertain submission.

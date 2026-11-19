@@ -58,7 +58,7 @@ func TestDryRun(t *testing.T) {
 	compositor(t, true)
 	var out bytes.Buffer
 	r := Runner{Out: &out, Err: &out, Start: func(string, []string) error { t.Fatal("dry-run launched Firefox"); return nil }}
-	if err := r.Run([]string{"open", "--dry-run", "https://example.org/private"}); err != nil {
+	if err := r.Run([]string{"open", "--dry-run", "--source-window-id", "900", "https://example.org/private"}); err != nil {
 		t.Fatal(err)
 	}
 	if strings.Contains(out.String(), "private") || !strings.Contains(out.String(), `"firefox_window_id":3`) {

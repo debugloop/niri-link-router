@@ -79,9 +79,9 @@ class Smoke(unittest.TestCase):
                         request = json.loads(line)
                         ipc_requests.append(request)
                         if request == "Workspaces":
-                            ok = {"Workspaces": [{"id": 0, "idx": 1, "output": "A", "is_focused": True}]}
+                            ok = {"Workspaces": [{"id": 0, "idx": 1, "output": "A", "is_focused": False}, {"id": 1, "idx": 2, "output": "A", "is_focused": True, "name": "web"}]}
                         elif request == "Windows":
-                            ok = {"Windows": [{"id": 900, "pid": peer.pid, "workspace_id": 0, "app_id": "firefox", "title": "[nfr:3] Test"}]}
+                            ok = {"Windows": [{"id": 900, "pid": peer.pid, "workspace_id": 0, "app_id": "firefox", "title": "[nfr:3] Test"}, {"id": 901, "pid": os.getpid(), "workspace_id": 0, "app_id": "launcher"}, {"id": 902, "pid": 123, "workspace_id": 1, "app_id": "firefox", "title": "[nfr:4] Test"}]}
                         else:
                             ok = "Handled"
                         conn.sendall((json.dumps({"Ok": ok}) + "\n").encode())
@@ -117,6 +117,22 @@ class Smoke(unittest.TestCase):
                 self.assertEqual(json.loads(dry.stdout)["firefox_window_id"], 3)
                 self.assertNotIn(url, dry.stdout)
                 self.assertEqual(deliveries, [])
+                if shutil.which("xdg-open"):
+                    applications = root / "data" / "applications"
+                    applications.mkdir(parents=True)
+                    (root / "config").mkdir(exist_ok=True)
+                    (root / "config" / "mimeapps.list").write_text(
+                        "[Default Applications]\nx-scheme-handler/https=nfr-test.desktop\n"
+                    )
+                    (applications / "nfr-test.desktop").write_text(
+                        "[Desktop Entry]\nType=Application\nName=Router smoke test\n"
+                        f"Exec={binary} open --dry-run %u\nMimeType=x-scheme-handler/https;\n"
+                    )
+                    desktop_env = dict(env, XDG_DATA_HOME=str(applications.parent), XDG_CURRENT_DESKTOP="generic",
+                                       DE="generic", BROWSER="", DISPLAY=":999")
+                    opened = subprocess.run(["xdg-open", url], env=desktop_env, check=True,
+                                            capture_output=True, text=True, timeout=5)
+                    self.assertEqual(json.loads(opened.stdout)["niri_window_id"], 900)
                 outcomes.put("opened")
                 result = subprocess.run(command, env=env, check=True, capture_output=True, text=True, timeout=5)
                 self.assertIn("acknowledged tab creation", result.stdout)
@@ -124,7 +140,8 @@ class Smoke(unittest.TestCase):
                 self.assertEqual(len(deliveries), 1)
                 self.assertEqual(deliveries[0]["url"], url)
                 self.assertEqual(deliveries[0]["window_id"], 3)
-                self.assertEqual(ipc_requests[-1], {"Action": {"FocusWindow": {"id": 900}}})
+                self.assertFalse(any("Action" in request for request in ipc_requests))
+                self.assertTrue(deliveries[0]["active"])
                 checked = subprocess.run(["node", "tests/verify-native.cjs"], cwd=ROOT, input=json.dumps(deliveries[0]), capture_output=True, text=True, check=True)
                 self.assertEqual(json.loads(checked.stdout)["url"], url)
                 outcomes.put("uncertain")

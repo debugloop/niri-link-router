@@ -56,8 +56,6 @@
         status = "uncertain";
         await api.tabs.create({ windowId: request.window_id, url: request.url, active: request.active });
         status = "opened";
-        try { await api.windows.update(request.window_id, { focused: true }); }
-        catch { /* The tab already exists even if focus fails. */ }
       } catch (error) {
         if (error?.message === "duplicate") status = "uncertain";
       }

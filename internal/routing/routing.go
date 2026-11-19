@@ -96,6 +96,15 @@ func recent(a, b *Timestamp) int {
 	return 0
 }
 func Select(workspaces []Workspace, windows []Window, fallbackName string) (Decision, error) {
+	return selectWindow(workspaces, windows, fallbackName, true, nil)
+}
+
+// SelectForOpen uses the launching window's workspace when it is known.
+func SelectForOpen(workspaces []Workspace, windows []Window, fallbackName string, sourceID *uint64) (Decision, error) {
+	return selectWindow(workspaces, windows, fallbackName, false, sourceID)
+}
+
+func selectWindow(workspaces []Workspace, windows []Window, fallbackName string, useFocus bool, sourceID *uint64) (Decision, error) {
 	ws := make(map[uint64]Workspace)
 	var current Workspace
 	focused := 0
@@ -117,8 +126,19 @@ func Select(workspaces []Workspace, windows []Window, fallbackName string) (Deci
 			fallback = &copy
 		}
 	}
-	if focused != 1 || output(current) == "" {
+	if useFocus && (focused != 1 || output(current) == "") {
 		return Decision{}, errors.New("niri must have one focused workspace on an output")
+	}
+	var localWorkspace *uint64
+	if useFocus {
+		localWorkspace = &current.ID
+	} else if sourceID != nil {
+		for _, w := range windows {
+			if w.ID == *sourceID {
+				localWorkspace = w.WorkspaceID
+				break
+			}
+		}
 	}
 	var local, remote []candidate
 	for _, w := range windows {
@@ -132,7 +152,7 @@ func Select(workspaces []Workspace, windows []Window, fallbackName string) (Deci
 		if !ok {
 			return Decision{}, errors.New("window workspace disappeared during snapshot")
 		}
-		if space.ID == current.ID {
+		if localWorkspace != nil && space.ID == *localWorkspace {
 			local = append(local, candidate{w, space})
 		} else if fallback != nil && space.ID == fallback.ID {
 			remote = append(remote, candidate{w, space})

@@ -26,7 +26,7 @@ test("native request opens exactly one tab in its profile-local window", async (
   const reply = await f.service.open(r);
   assert.deepEqual(reply, { version: 1, type: "result", id: r.id, status: "opened" });
   assert.deepEqual(f.tabs, [{ windowId: 1, url: r.url, active: true }]);
-  assert.deepEqual(f.focused, [[1, { focused: true }]]);
+  assert.deepEqual(f.focused, []);
   assert.deepEqual(f.local.receipts, [{ at: now, status: "opened" }]);
 });
 test("invalid input never creates a tab", async () => {
@@ -50,11 +50,11 @@ test("two profiles can both use window ID one", async () => {
   assert.equal(first.tabs[0].windowId, 1);
   assert.equal(second.tabs[0].windowId, 1);
 });
-test("inactive tab still focuses its destination window", async () => {
+test("inactive tab preserves destination window focus", async () => {
   const f = fixture();
   await f.service.open(request({ active: false }));
   assert.equal(f.tabs[0].active, false);
-  assert.equal(f.focused.length, 1);
+  assert.equal(f.focused.length, 0);
 });
 test("invalid destination and storage failures reject before tab creation", async () => {
   for (const cause of ["private", "popup", "missing", "storage", "corrupt", "capacity"]) {
@@ -75,12 +75,14 @@ test("tab API errors are uncertain and never retried", async () => {
   assert.equal((await f.service.open(request())).status, "uncertain");
   assert.equal(calls, 1);
 });
-test("focus and receipt errors cannot undo a successful tab creation", async () => {
+test("tab creation preserves window focus even if recording the receipt fails", async () => {
   const f = fixture();
-  f.api.windows.update = async () => { throw new Error("focus"); };
+  let focusCalls = 0;
+  f.api.windows.update = async () => { focusCalls++; };
   f.api.storage.local.set = async () => { throw new Error("receipt"); };
   assert.equal((await f.service.open(request())).status, "opened");
   assert.equal(f.tabs.length, 1);
+  assert.equal(focusCalls, 0);
 });
 test("receipts discard unrelated fields and stay bounded", async () => {
   const f = fixture();

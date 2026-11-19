@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2
+
+- Route external links to Firefox on the launching window’s workspace when the source can be identified.
+- Use the configured fallback workspace when the source is unknown or has no Firefox window.
+- Select the new tab without changing window or workspace focus during routed delivery.
+
 ## 0.2.1
 
 - Document permanent installation from Firefox Add-ons and optional Nix provisioning.
